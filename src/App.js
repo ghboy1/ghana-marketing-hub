@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import {
   Calendar, TrendingUp, BarChart3, Brain, LogOut,
-  Sparkles, X, Flame, Trophy, Zap
+  Sparkles, Flame, Trophy, Zap, X   // ← ADD THIS
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import PricingModal from './components/PricingModal';
