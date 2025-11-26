@@ -37,7 +37,7 @@ const LoginPage = ({ onLogin }) => {
             <span className="text-8xl">Black Star</span>
           </div>
           <h1 className="text-6xl font-black text-white mb-4">GHANA MARKETING HUB</h1>
-          <p className="text-2xl text-yellow-300 font-bold">Get More Customers. Ghana First.</p>
+          <p className="text-2xl text-yellow-300 font-bold">Get More Customers. by Rauf H.</p>
         </div>
 
         <input
