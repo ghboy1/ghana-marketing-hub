@@ -1,14 +1,17 @@
 // src/App.js
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Calendar, TrendingUp, BarChart3, Brain, LogOut,
   Sparkles, Flame, Trophy, Zap, X
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import PricingModal from './components/PricingModal';
+import AdminPage from './pages/AdminPage';
+import AnalyticsPage from './pages/AnalyticsPage';
+import CalendarPage from './pages/CalendarPage';
 import './App.css';
 
-// Ghana Hashtags & Templates
+// Constants
 const GHANA_VIRAL_HASHTAGS = {
   trending: ['#GhanaTwitter', '#Accra', '#Kumasi', '#Ghana', '#VisitGhana'],
   business: ['#GhanaBusiness', '#SupportLocalGH', '#MadeInGhana', '#AccraEntrepreneur']
@@ -26,7 +29,6 @@ const AI_POST_TEMPLATES = [
 /* ——— LOGIN PAGE ——— */
 const LoginPage = ({ onLogin }) => {
   const [name, setName] = useState('');
-
   const handleLogin = () => {
     if (!name.trim()) return alert("Please enter your business name");
     const userData = { businessName: name.trim() };
@@ -42,7 +44,6 @@ const LoginPage = ({ onLogin }) => {
         </div>
         <h1 className="text-6xl font-black text-white mb-4">GHANA MARKETING HUB</h1>
         <p className="text-2xl text-yellow-300 font-bold mb-12">Get More Customers. Ghana First.</p>
-
         <input
           type="text"
           placeholder="Your Business Name"
@@ -51,14 +52,12 @@ const LoginPage = ({ onLogin }) => {
           onChange={(e) => setName(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
         />
-
         <button
           onClick={handleLogin}
           className="w-full btn-ghana text-3xl py-6 font-black shadow-2xl hover:scale-105 transition"
         >
           LAUNCH MY DASHBOARD
         </button>
-
         <p className="mt-10 text-white/70 text-lg">Used by 500+ Ghanaian businesses</p>
       </div>
     </div>
@@ -67,18 +66,15 @@ const LoginPage = ({ onLogin }) => {
 
 /* ——— MAIN APP ——— */
 const MainApp = () => {
-  // Auto-login from localStorage
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem('ghanaUser');
     return saved ? JSON.parse(saved) : null;
   });
-
   const [page, setPage] = useState('dashboard');
   const [showComposer, setShowComposer] = useState(false);
   const [showPricing, setShowPricing] = useState(false);
   const [postContent, setPostContent] = useState('');
 
-  // PRO Status
   const isProUser = localStorage.getItem('isProUser') === 'true';
   const userPlan = localStorage.getItem('userPlan') || 'Free';
 
@@ -110,14 +106,12 @@ const MainApp = () => {
     setUser(null);
   };
 
-  // Show login if no user
   if (!user) return <LoginPage onLogin={setUser} />;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-slate-900 to-green-950 text-white">
       <div className="ghana-flag-strip"></div>
 
-      {/* Header */}
       <header className="glass-header border-b border-yellow-500/20">
         <div className="flex items-center justify-between p-6">
           <div className="flex items-center gap-4">
@@ -134,12 +128,13 @@ const MainApp = () => {
       </header>
 
       <div className="flex">
-        {/* Sidebar */}
         <aside className="w-64 glass-sidebar p-6 space-y-6">
           {[
             { id: 'dashboard', label: 'Dashboard', icon: TrendingUp, color: 'text-green-400' },
             { id: 'ai', label: 'AI Writer', icon: Brain, color: 'text-purple-400' },
-            { id: 'analytics', label: 'Analytics', icon: BarChart3, color: 'text-yellow-400' }
+            { id: 'analytics', label: 'Analytics', icon: BarChart3, color: 'text-yellow-400' },
+            { id: 'calendar', label: 'Calendar', icon: Calendar, color: 'text-blue-400' },
+            { id: 'admin', label: 'Admin', icon: BarChart3, color: 'text-red-400' }
           ].map(item => (
             <button
               key={item.id}
@@ -152,7 +147,6 @@ const MainApp = () => {
           ))}
         </aside>
 
-        {/* Main Content */}
         <main className="flex-1 p-8">
           {page === 'dashboard' && (
             <div className="space-y-12">
@@ -160,35 +154,23 @@ const MainApp = () => {
                 <h2 className="text-6xl font-black mb-4">Welcome Back, Ghana!</h2>
                 <p className="text-3xl text-yellow-400">Today is a great day to grow</p>
               </div>
-
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="glass-card p-10 text-center"><Flame className="mx-auto mb-4 text-orange-500" size={70} /><p className="text-6xl font-black text-orange-400">+89%</p><p className="text-xl">Growth</p></div>
                 <div className="glass-card p-10 text-center"><Trophy className="mx-auto mb-4 text-yellow-500" size={70} /><p className="text-6xl font-black text-yellow-400">#1</p><p className="text-xl">In Category</p></div>
                 <div className="glass-card p-10 text-center"><Zap className="mx-auto mb-4 text-green-500" size={70} /><p className="text-6xl font-black text-green-400">4.8×</p><p className="text-xl">Engagement</p></div>
               </div>
-
               <div className="glass-card p-12 text-center">
                 <h3 className="text-5xl font-bold mb-10 flex items-center justify-center gap-4">
                   <Sparkles className="text-yellow-400" size={50} /> AI Post Generator
                 </h3>
-
                 {isProUser ? (
-                  <button
-                    onClick={() => { generateAIPost(); setShowComposer(true); }}
-                    className="w-full max-w-3xl mx-auto bg-gradient-to-r from-purple-600 to-pink-600 py-10 rounded-3xl text-4xl font-black hover:scale-105 transition shadow-2xl"
-                  >
+                  <button onClick={() => { generateAIPost(); setShowComposer(true); }} className="w-full max-w-3xl mx-auto bg-gradient-to-r from-purple-600 to-pink-600 py-10 rounded-3xl text-4xl font-black hover:scale-105 transition shadow-2xl">
                     Generate Unlimited Viral Posts
                   </button>
                 ) : (
-                  <div>
-                    <button
-                      onClick={() => setShowPricing(true)}
-                      className="w-full max-w-3xl mx-auto bg-gradient-to-r from-yellow-400 to-red-600 text-black py-10 rounded-3xl text-4xl font-black hover:scale-110 transition shadow-2xl"
-                    >
-                      Unlock Unlimited AI Posts – Upgrade to PRO
-                    </button>
-                    <p className="mt-8 text-gray-400 text-xl">Free plan: 3 posts/month only</p>
-                  </div>
+                  <button onClick={() => setShowPricing(true)} className="w-full max-w-3xl mx-auto bg-gradient-to-r from-yellow-400 to-red-600 text-black py-10 rounded-3xl text-4xl font-black hover:scale-110 transition shadow-2xl">
+                    Unlock Unlimited AI Posts – Upgrade to PRO
+                  </button>
                 )}
               </div>
             </div>
@@ -205,12 +187,8 @@ const MainApp = () => {
                   className="w-full h-80 glass-input text-2xl p-8 rounded-3xl mb-10 resize-none"
                 />
                 <div className="grid grid-cols-2 gap-8 mb-12">
-                  <button onClick={generateAIPost} className="btn-ghana text-3xl py-8 font-black">
-                    Generate New Post
-                  </button>
-                  <button onClick={() => setShowComposer(true)} className="bg-white/20 backdrop-blur border-4 border-yellow-500 text-3xl py-8 rounded-3xl font-bold hover:bg-white/30 transition">
-                    Schedule This Post
-                  </button>
+                  <button onClick={generateAIPost} className="btn-ghana text-3xl py-8 font-black">Generate New Post</button>
+                  <button onClick={() => setShowComposer(true)} className="bg-white/20 backdrop-blur border-4 border-yellow-500 text-3xl py-8 rounded-3xl font-bold hover:bg-white/30 transition">Schedule This Post</button>
                 </div>
                 <div className="text-center">
                   <p className="text-4xl font-bold text-yellow-400 mb-4">Best Time to Post:</p>
@@ -220,6 +198,10 @@ const MainApp = () => {
               </div>
             </div>
           )}
+
+          {page === 'analytics' && <AnalyticsPage />}
+          {page === 'calendar' && <CalendarPage />}
+          {page === 'admin' && <AdminPage />}
         </main>
       </div>
 
@@ -239,7 +221,6 @@ const MainApp = () => {
         </div>
       )}
 
-      {/* Pricing Modal */}
       <PricingModal
         isOpen={showPricing}
         onClose={() => setShowPricing(false)}
