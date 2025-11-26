@@ -2,41 +2,39 @@
 import React from 'react';
 import { usePaystackPayment } from 'react-paystack';
 import confetti from 'canvas-confetti';
+import { X } from 'lucide-react'; // ← Fixed the lowercase <x> error
 
 const PricingModal = ({ isOpen, onClose, userEmail = "customer@ghanaads.store" }) => {
   if (!isOpen) return null;
 
-  // REPLACE THIS WITH YOUR REAL PAYSTACK TEST KEY FIRST
-  const publicKey = 'pk_test_YOUR_TEST_KEY_HERE'; // ← Put your real key here
+  // YOUR REAL PAYSTACK TEST PUBLIC KEY (safe to keep here during testing)
+  const publicKey = 'pk_test_7f55c7f5217c01e854a87f5b4f4f30f1b5889b5e';
 
   const onSuccess = (reference) => {
     confetti({
       particleCount: 300,
-      spread: 100,
+      spread: 120,
       origin: { y: 0.6 },
       colors: ['#CE1126', '#FCD116', '#006B3F', '#000000']
     });
-    alert(`Payment Successful! You're now on PRO plan! Ref: ${reference.reference}`);
+    alert(`Payment Successful! Ref: ${reference.reference}\nYou are now PRO!`);
     localStorage.setItem('isProUser', 'true');
-    localStorage.setItem('userPlan', reference.metadata.plan);
+    localStorage.setItem('userPlan', reference.metadata.plan || 'Pro');
     onClose();
     window.location.reload();
   };
 
   const onClosePaystack = () => {
-    console.log('Payment closed');
+    console.log('Payment closed by user');
   };
 
   const PaystackButton = ({ amount, plan }) => {
     const config = {
-      reference: new Date().getTime().toString() + Math.floor(Math.random() * 10000),
+      reference: new Date().getTime().toString() + Math.floor(Math.random() * 100000),
       email: userEmail,
-      amount: amount * 100, // amount in kobo
+      amount: amount * 100, // Paystack uses kobo (¢399 → 39900)
       publicKey,
-      metadata: {
-        plan,
-        domain: 'ghanaads.store'
-      }
+      metadata: { plan, domain: 'ghanaads.store' }
     };
 
     const initializePayment = usePaystackPayment(config);
@@ -54,11 +52,13 @@ const PricingModal = ({ isOpen, onClose, userEmail = "customer@ghanaads.store" }
   return (
     <div className="fixed inset-0 bg-black/95 backdrop-blur-sm flex items-center justify-center z-50 p-6" onClick={onClose}>
       <div className="glass-card rounded-3xl p-10 max-w-5xl w-full max-h-screen overflow-y-auto" onClick={e => e.stopPropagation()}>
-        <button onClick={onClose} className="float-right text-white/60 hover:text-white">
-          <x size={32} />
+        
+        {/* Close button – fixed lowercase x */}
+        <button onClick={onClose} className="float-right text-white/70 hover:text-white mb-4">
+          <X size={36} />
         </button>
 
-        <h2 className="text-5xl font-black text-center mb-10 text-yellow-400">
+        <h2 className="text-5xl font-black text-center mb-10 text-yellow-400 clear-both">
           Upgrade to PRO – Grow Faster
         </h2>
 
@@ -77,7 +77,7 @@ const PricingModal = ({ isOpen, onClose, userEmail = "customer@ghanaads.store" }
           </div>
 
           {/* PRO – Most Popular */}
-          <div className="glass-card p-10 text-center ring-4 ring-yellow-400 ring-offset-4 ring-offset-black scale-110 shadow-2xl">
+          <div className="glass-card p-10 text-center ring-8 ring-yellow-400 ring-offset-8 ring-offset-black scale-110 shadow-2xl">
             <div className="bg-yellow-400 text-black font-bold px-6 py-2 rounded-full inline-block mb-6 text-lg">
               MOST POPULAR
             </div>
