@@ -18,6 +18,12 @@ const analyticsRoutes = require('./routes/analytics');
 const competitorRoutes = require('./routes/competitors');
 const reportRoutes = require('./routes/reports');
 
+// ADD THESE LINES IN index.js
+const authSocialRoutes = require('./routes/authSocial');
+const postSocialRoutes = require('./routes/postSocial');
+
+app.use('/api/social/auth', authSocialRoutes);
+app.use('/api/social/post', postSocialRoutes);
 const app = express();
 
 // MIDDLEWARE
